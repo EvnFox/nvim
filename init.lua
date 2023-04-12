@@ -15,7 +15,7 @@ vim.g.mapleader = " "
 require("lazy").setup("plugins", {
  defaults = { lazy = false }, 
  install = { missing = true},
- checker = { enabled = true },
+ checker = { enabled = false },
  performance = {
   rtp = {
    disabled_plugins = {
@@ -35,3 +35,14 @@ require("lazy").setup("plugins", {
 
 --vim.o.background = "dark" -- or "light" for light mode
 --vim.cmd([[colorscheme gruvbox]])
+require('snippy').setup({
+    mappings = {
+        is = {
+            ['<Tab>'] = 'expand_or_advance',
+            ['<S-Tab>'] = 'previous',
+        },
+        nx = {
+            ['<leader>x'] = 'cut_text',
+        },
+    },
+}) 	   

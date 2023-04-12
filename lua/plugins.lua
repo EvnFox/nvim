@@ -19,17 +19,17 @@ return {
     priority = 1000, 
     config = function() 
     vim.o.background = "dark" 
-    vim.cmd([[colorscheme gruvbox]])
+    vim.cmd([[colorscheme gruvbox]]) 
     end, 
     },
   {
     "lervag/vimtex", 
     lazy = false,
-    -- vim.g.vimtex_view_method = "sumatra"
+    --vim.g.vimtex_view_method = "sumatra"
 --    g.vimtex_view_method = "sumatrapdf" 
-  --  end, 
     },
   "xiyaowong/transparent.nvim", 
+   'dcampos/nvim-snippy', 
 }
 
 
