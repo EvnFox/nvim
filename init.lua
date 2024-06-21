@@ -9,9 +9,10 @@ if not vim.loop.fs_stat(lazypath) then
   lazypath,
  })
 end
-
 vim.opt.runtimepath:prepend(lazypath)
 vim.g.mapleader = " "
+vim.wo.number = true
+vim.o.wrap = true
 require("lazy").setup("plugins", {
  defaults = { lazy = false }, 
  install = { missing = true},
@@ -33,9 +34,8 @@ require("lazy").setup("plugins", {
  -- debug = true,
 })
 
---vim.o.background = "dark" -- or "light" for light mode
---vim.cmd([[colorscheme gruvbox]])
 require('snippy').setup({
+    enable_auto = true, 
     mappings = {
         is = {
             ['<Tab>'] = 'expand_or_advance',
@@ -45,4 +45,186 @@ require('snippy').setup({
             ['<leader>x'] = 'cut_text',
         },
     },
-}) 	   
+})
+
+require("oil").setup({
+  -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
+  -- Set to false if you still want to use netrw.
+  default_file_explorer = true,
+  -- Id is automatically added at the beginning, and name at the end
+  -- See :help oil-columns
+  columns = {
+    "icon",
+     "permissions",
+     "size",
+    -- "mtime",
+  },
+  -- Buffer-local options to use for oil buffers
+  buf_options = {
+    buflisted = false,
+    bufhidden = "hide",
+  },
+  -- Window-local options to use for oil buffers
+  win_options = {
+    wrap = false,
+    signcolumn = "no",
+    cursorcolumn = false,
+    foldcolumn = "0",
+    spell = false,
+    list = false,
+    conceallevel = 3,
+    concealcursor = "nvic",
+  },
+  -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
+  delete_to_trash = true,
+  -- Skip the confirmation popup for simple operations
+  skip_confirm_for_simple_edits = false,
+  -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
+  prompt_save_on_select_new_entry = true,
+  -- Oil will automatically delete hidden buffers after this delay
+  -- You can set the delay to false to disable cleanup entirely
+  -- Note that the cleanup process only starts when none of the oil buffers are currently displayed
+  cleanup_delay_ms = 2000,
+  -- Set to true to autosave buffers that are updated with LSP willRenameFiles
+  -- Set to "unmodified" to only save unmodified buffers
+  lsp_rename_autosave = false,
+  -- Constrain the cursor to the editable parts of the oil buffer
+  -- Set to `false` to disable, or "name" to keep it on the file names
+  constrain_cursor = "editable",
+  -- Keymaps in oil buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
+  -- options with a `callback` (e.g. { callback = function() ... end, desc = "", mode = "n" })
+  -- Additionally, if it is a string that matches "actions.<name>",
+  -- it will use the mapping at require("oil.actions").<name>
+  -- Set to `false` to remove a keymap
+  -- See :help oil-actions for a list of all available actions
+  keymaps = {
+    ["g?"] = "actions.show_help",
+    ["<CR>"] = "actions.select",
+    ["<C-s>"] = "actions.select_vsplit",
+    ["<C-h>"] = "actions.select_split",
+    ["<C-t>"] = "actions.select_tab",
+    ["<C-p>"] = "actions.preview",
+    ["<C-c>"] = "actions.close",
+    ["<C-l>"] = "actions.refresh",
+    ["-"] = "actions.parent",
+    ["_"] = "actions.open_cwd",
+    ["`"] = "actions.cd",
+    ["~"] = "actions.tcd",
+    ["gs"] = "actions.change_sort",
+    ["gx"] = "actions.open_external",
+    ["g."] = "actions.toggle_hidden",
+    ["g\\"] = "actions.toggle_trash",
+  },
+  -- Set to false to disable all of the above keymaps
+  use_default_keymaps = true,
+  view_options = {
+    -- Show files and directories that start with "."
+    show_hidden = false,
+    -- This function defines what is considered a "hidden" file
+    is_hidden_file = function(name, bufnr)
+      return vim.startswith(name, ".")
+    end,
+    -- This function defines what will never be shown, even when `show_hidden` is set
+    is_always_hidden = function(name, bufnr)
+      return false
+    end,
+    sort = {
+      -- sort order can be "asc" or "desc"
+      -- see :help oil-columns to see which columns are sortable
+      { "type", "asc" },
+      { "name", "asc" },
+    },
+  },
+  -- Configuration for the floating window in oil.open_float
+  float = {
+    -- Padding around the floating window
+    padding = 2,
+    max_width = 0,
+    max_height = 0,
+    border = "rounded",
+    win_options = {
+      winblend = 0,
+    },
+    -- This is the config that will be passed to nvim_open_win.
+    -- Change values here to customize the layout
+    override = function(conf)
+      return conf
+    end,
+  },
+  -- Configuration for the actions floating preview window
+  preview = {
+    -- Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
+    -- min_width and max_width can be a single value or a list of mixed integer/float types.
+    -- max_width = {100, 0.8} means "the lesser of 100 columns or 80% of total"
+    max_width = 0.9,
+    -- min_width = {40, 0.4} means "the greater of 40 columns or 40% of total"
+    min_width = { 40, 0.4 },
+    -- optionally define an integer/float for the exact width of the preview window
+    width = nil,
+    -- Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
+    -- min_height and max_height can be a single value or a list of mixed integer/float types.
+    -- max_height = {80, 0.9} means "the lesser of 80 columns or 90% of total"
+    max_height = 0.9,
+    -- min_height = {5, 0.1} means "the greater of 5 columns or 10% of total"
+    min_height = { 5, 0.1 },
+    -- optionally define an integer/float for the exact height of the preview window
+    height = nil,
+    border = "rounded",
+    win_options = {
+      winblend = 0,
+    },
+    -- Whether the preview window is automatically updated when the cursor is moved
+    update_on_cursor_moved = true,
+  },
+  -- Configuration for the floating progress window
+  progress = {
+    max_width = 0.9,
+    min_width = { 40, 0.4 },
+    width = nil,
+    max_height = { 10, 0.9 },
+    min_height = { 5, 0.1 },
+    height = nil,
+    border = "rounded",
+    minimized_border = "none",
+    win_options = {
+      winblend = 0,
+    },
+  },
+})
+
+
+
+
+require('nvim-treesitter.configs').setup({
+  -- A list of parser names, or "all" (the five listed parsers should always be installed)
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- Automatically install missing parsers when entering buffer
+  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+  auto_install = true,
+
+  -- List of parsers to ignore installing (or "all")
+  --ignore_install = { },
+
+  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
+  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+
+  highlight = {
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = {"latex"}, 
+    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  }, 
+})
